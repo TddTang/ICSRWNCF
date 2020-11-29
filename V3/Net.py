@@ -24,7 +24,7 @@ class Model_two(nn.Module):
         self.hidden3 = nn.Linear(64, 32)
         self.dropout3 = nn.Dropout(p=0.4)
         self.predict = nn.Linear(32, n_output)
-        self.dropout4 = nn.Dropout(p=0.2)
+        self.dropout4 = nn.Dropout(p=0.4)
 
     def forward(self, x):
         out = self.hidden1(x)
