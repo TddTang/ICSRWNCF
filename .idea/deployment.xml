@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@223.3.95.51:22" remoteFilesAllowedToDisappearOnAutoupload="false" autoUploadExternalChanges="true">
+    <serverData>
+      <paths name="SEU">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/IntelligentCommercialSiteRecommendationWithNeuralcollaborativeFiltering_V2" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@223.3.95.51:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zhangbinjie/IntelligentCommercialSiteRecommendationWithNeuralcollaborativeFiltering_V2" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@223.3.95.51:22 (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zhangbinjie/IntelligentCommercialSiteRecommendationWithNeuralcollaborativeFiltering_V2" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@223.3.95.51:22 (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zhangbinjie/IntelligentCommercialSiteRecommendationWithNeuralcollaborativeFiltering_V2" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@223.3.95.51:22 (3)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
