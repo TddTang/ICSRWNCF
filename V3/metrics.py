@@ -62,12 +62,12 @@ def train_ndcg_at_n(train_real_score, train_predict_score, n, num):
     total_num = len(each_train_predict_score)
 
     for i in range(len(each_train_predict_score)):
+
         now_real_score = each_train_real_score[i]
         now_predict_score = each_train_predict_score[i]
 
         rel_val, real_rank = torch.sort(now_real_score, descending=True)
         _, pre_rank = torch.sort(now_predict_score, descending=True)
-
         one_set = []
         now_dcg = 0
         now_idcg = 0
@@ -75,7 +75,6 @@ def train_ndcg_at_n(train_real_score, train_predict_score, n, num):
             if rel_val[j] == torch.tensor(0):
                 break
             one_set.append(real_rank[j])
-
         one_set = torch.tensor(one_set)
 
         for j in range(n):
@@ -92,6 +91,7 @@ def train_ndcg_at_n(train_real_score, train_predict_score, n, num):
 
 
 def train_hr_at_n(train_real_score, train_predict_score, n, num):
+    # print('train_hr_at_n:')
     each_train_real_score = \
         [train_real_score[i: i + num] for i in range(0, len(train_real_score), num)]
     each_train_predict_score = \
@@ -99,13 +99,19 @@ def train_hr_at_n(train_real_score, train_predict_score, n, num):
 
     total_hit = 0
     total_num = len(each_train_predict_score)
-
+    # print('total num: ', total_num)
     for i in range(len(each_train_predict_score)):
+        # print('category: ', i)
         now_real_score = each_train_real_score[i]
         now_predict_score = each_train_predict_score[i]
 
         rel_val, real_rank = torch.sort(now_real_score, descending=True)
-        _, pre_rank = torch.sort(now_predict_score, descending=True)
+        pre_val, pre_rank = torch.sort(now_predict_score, descending=True)
+
+        # print('real val: ', rel_val)
+        # print("real rank: ", real_rank)
+        # print('pre val: ', pre_val)
+        # print("pre rank: ", pre_rank)
 
         one_set = []
         for j in range(len(rel_val)):
@@ -114,7 +120,7 @@ def train_hr_at_n(train_real_score, train_predict_score, n, num):
             one_set.append(real_rank[j])
 
         one_set = torch.tensor(one_set)
-
+        # print('one set:', one_set)
         for j in range(n):
             if pre_rank[j] in one_set:
                 total_hit += 1

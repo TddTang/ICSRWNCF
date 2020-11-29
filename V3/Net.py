@@ -18,13 +18,13 @@ class Model_two(nn.Module):
     def __init__(self, n_input, n_output):
         super(Model_two, self).__init__()
         self.hidden1 = nn.Linear(n_input, 128)
-        self.dropout1 = nn.Dropout(p=0.4)
+        self.dropout1 = nn.Dropout(p=0.3)
         self.hidden2 = nn.Linear(128, 64)
-        self.dropout2 = nn.Dropout(p=0.4)
+        self.dropout2 = nn.Dropout(p=0.3)
         self.hidden3 = nn.Linear(64, 32)
-        self.dropout3 = nn.Dropout(p=0.4)
+        self.dropout3 = nn.Dropout(p=0.3)
         self.predict = nn.Linear(32, n_output)
-        self.dropout4 = nn.Dropout(p=0.4)
+        self.dropout4 = nn.Dropout(p=0.3)
 
     def forward(self, x):
         out = self.hidden1(x)

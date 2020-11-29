@@ -24,7 +24,7 @@ class Information:
         self.print_every = 1000
         self.evaluate_every = 1
 
-        self.N = 8  # 前N个的ndcg和hr
+        self.N = 6  # 前N个的ndcg和hr
 
         # self.x1 = 118.597718  # 左上角(x1, y2) 右下角(x2,y1)
         # self.x2 = 118.990666

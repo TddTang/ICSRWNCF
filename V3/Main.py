@@ -116,8 +116,8 @@ if __name__ == '__main__':
                 loss = torch.nn.functional.binary_cross_entropy(test_NeuMF_out, test_real_score, reduction='sum')
 
                 # evaluate ndcg & hr
-                ndcg = ndcg_at_n(test_NeuMF_out, test_real_score, info.N, info.test_num + 1)
-                hr = hr_at_n(test_NeuMF_out, test_real_score, info.N, info.test_num + 1)
+                ndcg = ndcg_at_n(test_real_score, test_NeuMF_out, info.N, info.test_num + 1)
+                hr = hr_at_n(test_real_score, test_NeuMF_out,  info.N, info.test_num + 1)
 
                 # ------------train evaluate------------
                 all_train_category_feature, all_train_grid_feature, all_train_real_score = \
@@ -125,8 +125,8 @@ if __name__ == '__main__':
 
                 all_train_NeuMF_out = get_mode_out(model, all_train_category_feature, all_train_grid_feature)
 
-                all_train_ndcg = train_ndcg_at_n(all_train_NeuMF_out, all_train_real_score, 20, 810 - (info.test_num + 1))
-                all_train_hr = train_hr_at_n(all_train_NeuMF_out, all_train_real_score, 20, 810 - (info.test_num + 1))
+                all_train_ndcg = train_ndcg_at_n(all_train_real_score, all_train_NeuMF_out,  8, 810 - (info.test_num + 1))
+                all_train_hr = train_hr_at_n(all_train_real_score, all_train_NeuMF_out, 8, 810 - (info.test_num + 1))
                 print('**Train Evaluate: Epoch: ', epoch, 'Time: ', time() - time_iter,  'Train HR: ', all_train_hr,
                       'Train NDCG: ', all_train_ndcg)
                 # ----------------------------------
@@ -167,9 +167,6 @@ if __name__ == '__main__':
         test_category_feature, test_grid_feature, test_real_score = \
             data.get_feature(data.test_category_index, data.test_grid_index, data.test_real_score_index)
 
-        # test_NeuMF_out = model(test_category_feature, test_grid_feature)
-        # test_NeuMF_out = torch.sigmoid(test_NeuMF_out)
-        # test_NeuMF_out = test_NeuMF_out.view(1, len(test_NeuMF_out))[0]
         test_NeuMF_out = get_mode_out(model, test_category_feature, test_grid_feature)
 
         loss = torch.nn.functional.binary_cross_entropy(test_NeuMF_out, test_real_score, reduction='sum')
