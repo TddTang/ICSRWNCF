@@ -30,21 +30,19 @@ def system_init(seed):
         torch.cuda.manual_seed_all(seed)
 
 
-def get_mode_out(model, category_feature, grid_feature):
-    out = model(category_feature, grid_feature)
-    out = torch.sigmoid(out)  # 应该可以放入模型中同理
+def get_mode_out(now_model, category_feature, grid_feature):
+    out = now_model(category_feature, grid_feature)
+    out = torch.sigmoid(out)  # It can fit in the model in the same way.
     return out.view(1, len(out))[0]
 
 
 if __name__ == '__main__':
-    # init
     system_init(981125)
     info = Information()
-    loss_list = []
     hr_list = []
     ndcg_list = []
 
-    print("-------初始化完成-------")
+    print("-------Initialization complete-------")
 
     # load data
     data = DataLoader(info)
@@ -55,14 +53,14 @@ if __name__ == '__main__':
         [data.train_grid_index[i: i + batch_size] for i in range(0, len(data.train_grid_index), batch_size)]
     train_real_score_index = \
         [data.train_real_score_index[i: i + batch_size] for i in range(0, len(data.train_real_score_index), batch_size)]
-    print("-------数据装载&&batch划分完成-------")
+    print("-------Data loading and batch partitioning complete-------")
 
     # construct model and optimizer
     model = Model(len(data.category_one_hot_matrix), len(data.address_block_one_hot_matrix), info.K)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=info.lr)
 
-    print("-------模型&优化方式构建完成--------")
+    print("-------Model and Optimization Methodology Build Complete--------")
 
     # move to GPU
     if CUDA_AVAILABLE:
@@ -125,34 +123,28 @@ if __name__ == '__main__':
 
                 all_train_NeuMF_out = get_mode_out(model, all_train_category_feature, all_train_grid_feature)
 
-                all_train_ndcg = train_ndcg_at_n(all_train_real_score, all_train_NeuMF_out,  8, 810 - (info.test_num + 1))
-                all_train_hr = train_hr_at_n(all_train_real_score, all_train_NeuMF_out, 8, 810 - (info.test_num + 1))
+                all_train_ndcg = train_ndcg_at_n(all_train_real_score, all_train_NeuMF_out,  7, 810 - (info.test_num + 1))
+                all_train_hr = train_hr_at_n(all_train_real_score, all_train_NeuMF_out, 7, 810 - (info.test_num + 1))
                 print('**Train Evaluate: Epoch: ', epoch, 'Time: ', time() - time_iter,  'Train HR: ', all_train_hr,
                       'Train NDCG: ', all_train_ndcg)
                 # ----------------------------------
 
-                loss_list.append(loss)
                 hr_list.append(hr)
                 ndcg_list.append(ndcg)
 
                 if DEBUG:
-                    print('Evaluate: Epoch: ', epoch, 'Time: ', time() - time_iter, 'Test Loss: ', loss, 'HR: ', hr,
+                    print('Evaluate: Epoch: ', epoch, 'Time: ', time() - time_iter, 'HR: ', hr,
                           'NDCG: ', ndcg)
-    print("-------模型训练完成--------")
+    print("-------Model training complete--------")
 
-    loss_list = np.array(loss_list)
     hr_list = np.array(hr_list)
     ndcg_list = np.array(ndcg_list)
 
-    plt.subplot(1, 3, 1)
-    plt.xlabel("epoch")
-    plt.ylabel("Test Loss")
-    plt.plot(range(len(loss_list)), loss_list)
-    plt.subplot(1, 3, 2)
+    plt.subplot(1, 2, 1)
     plt.xlabel("epoch")
     plt.ylabel("HR@" + str(info.N))
     plt.plot(range(len(hr_list)), hr_list)
-    plt.subplot(1, 3, 3)
+    plt.subplot(1, 2, 2)
     plt.xlabel("epoch")
     plt.ylabel("NDCG@" + str(info.N))
     plt.plot(range(len(ndcg_list)), ndcg_list)

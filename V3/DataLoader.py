@@ -2,14 +2,9 @@ import pandas as pd
 import numpy as np
 import math
 import random
-import csv
 import torch
 
 from V3.Information import Information
-
-# 南京：
-# 1经度 = 92819.61471090886m
-# 1维度 = 111864.406779661m
 
 
 class DataLoader:
@@ -21,22 +16,25 @@ class DataLoader:
         self.interaction_matrix_id, self.id_category, self.address_block_scope, \
         self.test_set, self.category_vis = self.distribute_data(info.data_url, info.test_num)
 
-        # interaction_line, address_block_one_hot_matrix, category_one_hot_matrix 为tensor类型
-        # print("[1/...] 训练的交互矩阵，地址块one-hot矩阵，类别one-hot矩阵，类别序号对类别的映射，地址块序号对应的范围，测试集合")
-
         self.train_category_index, self.train_grid_index, self.train_real_score_index, self.test_category_index, \
         self.test_grid_index, self.test_real_score_index = self.get_index()
-        # score 为交互矩阵中真实值 为tensor类型
-
-        # print("[2/...] 地址块和类别块训练的组合索引+真实值 和 测试的组合索引+真实值")
 
     def show(self):
-        print("经度范围：" + str(self.x1) + "-" + str(self.x2))
-        print("维度范围：" + str(self.y1) + "-" + str(self.y2))
-        print("当前地区1经度= " + str(self.longitudeBase) + "m")
-        print("当前地区1维度= " + str(self.latitudeBase) + "m")
-        print("地址块宽度：" + str(self.width) + "m")
+        print("longitude range: " + str(self.x1) + "-" + str(self.x2))
+        print("latitude range" + str(self.y1) + "-" + str(self.y2))
+        print("one longitude= " + str(self.longitudeBase) + "m")
+        print("one latitude= " + str(self.latitudeBase) + "m")
+        print("block width" + str(self.width) + "m")
 
+    '''
+        Iterate the store data twice.
+        First time: counting and numbering store types
+        Second time: construct a matrix of store types and address blocks that can be used to calculate the address block
+        from the store's latitude and longitude and the address block number.
+        
+        Get the one-hot matrix of locations and the one-hot matrix of categories.
+        Get a random test set
+    '''
     def distribute_data(self, url, test_num):
         print("distribute data start...")
         x1 = self.info.x1
@@ -59,15 +57,11 @@ class DataLoader:
                 square_id = i * x_num + j
                 address_block_scope[square_id] = [x1 + i * x_degree, x1 + (i + 1) * x_degree,
                                                   y2 - (i + 1) * y_degree, y2 - i * y_degree]
-        # 遍历两次店铺数据：
-        # 第一次：统计店铺类型的数量并对店铺类型进行编号
-        # 第二次：构建店铺类型和地址块的矩阵，可以由店铺所处的经纬度算出店铺所在的地址块并算的改地址块的编号
-        # 得到地点的one-hot矩阵和类别的one-hot矩阵
-        # 随机得到测试集合
+
         my_data = pd.read_csv(url, low_memory=False)
         category_num = 0
-        category_id = {}  # 类型->id
-        id_category = {}  # id->类型
+        category_id = {}  # category->id
+        id_category = {}  # id->category
 
         num = 0
         for index, row in my_data.iterrows():
@@ -86,7 +80,6 @@ class DataLoader:
                 id_category[category_num] = category
                 category_num += 1
 
-        # print("[1/4] distribute data")
         print("---category num: " + str(category_num) + " ; grid num: " + str(x_num * y_num) + "---")
         num = 0
         interaction_matrix = np.full((category_num, x_num * y_num), 0, dtype=int)  # 下标都从0开始
@@ -117,16 +110,12 @@ class DataLoader:
                 interaction_line.append([interaction_matrix[i][j]])
                 interaction_matrix_id[i][j] = (len(interaction_line) - 1)
 
-        # print("[2/4] distribute data")
-
         address_block_one_hot_matrix = np.full((x_num * y_num, x_num * y_num), 0, dtype=int)
         category_one_hot_matrix = np.full((category_num, category_num), 0, dtype=int)
         for i in range(x_num * y_num):
             address_block_one_hot_matrix[i][i] = 1
         for i in range(category_num):
             category_one_hot_matrix[i][i] = 1
-
-        # print("[3/4] distribute data")
 
         test_set = []
         category_vis = []
@@ -149,14 +138,13 @@ class DataLoader:
                 test_set.append(tmp)
 
         print("After clear---category num: " + str(category_num) + " ; grid num: " + str(x_num * y_num) + "---")
-        # print("[4/4] distribute data")
 
-        # 返回训练的交互矩阵列，地址块one-hot矩阵，类别one-hot矩阵，交互矩阵id号，类别序号对类别的映射，地址块序号对应的范围，测试集合
         return torch.Tensor(interaction_line), torch.Tensor(address_block_one_hot_matrix), \
                torch.Tensor(category_one_hot_matrix), interaction_matrix_id, id_category, \
                address_block_scope, test_set, category_vis
 
-    # 构造地址块和类别块训练的组合索引+真实值 和 测试的组合索引+真实值
+    # Combined index + true value for constructing address blocks and categories of training and
+    # combined index + true value for testing.
     def get_index(self):
 
         category_num = len(self.id_category)
@@ -169,7 +157,7 @@ class DataLoader:
         test_real_score_index = []
 
         for i in range(category_num):
-            if self.category_vis[i] == 0:  # 无效类别 (交互次数少于阈值
+            if self.category_vis[i] == 0:  # invalid category (number of interactions less than the threshold)
                 continue
             for j in range(grid_num):
                 if j not in self.test_set[i]:
@@ -184,7 +172,7 @@ class DataLoader:
         return train_category_index, train_grid_index, train_real_score_index, test_category_index, \
                test_grid_index, test_real_score_index
 
-    # 根据index，在矩阵中取出对应的向量,返回为tensor
+    # The corresponding vector is retrieved from the matrix according to the index, and the type returned is the tensor.
     def get_feature(self, category_index_set, grid_index_set, real_score_set):
         now_real_score = self.interaction_line[real_score_set]
         now_real_score = now_real_score.view(1, len(now_real_score))[0]
@@ -194,7 +182,7 @@ class DataLoader:
 
 
 if __name__ == '__main__':
-    my_info = Information()  # 信息都包含在info中
+    my_info = Information()
     myDateLoader = DataLoader(my_info)
     category_feature, grid_feature, real_score = myDateLoader.get_feature(myDateLoader.test_category_index,
                                                                           myDateLoader.test_grid_index,

@@ -1,9 +1,8 @@
 import torch
-import numpy as np
 import math
 
 
-# 返回当每个地点的选取地点为num个 取前n个查找地点时的 ndcg
+# Num locations for each class. ndcg for the first n locations to be found.
 def ndcg_at_n(real_score, predict_score, n, num):
     each_real_score = \
         [real_score[i: i + num] for i in range(0, len(real_score), num)]
@@ -30,7 +29,7 @@ def ndcg_at_n(real_score, predict_score, n, num):
     return total_ndcg / total_num
 
 
-# 返回当每个地点的选取地点为num个 取前n个查找地点时的 hr
+# Num locations for each class. hr for the first n locations to be found.
 def hr_at_n(real_score, predict_score, n, num):
     each_real_score = \
         [real_score[i: i + num] for i in range(0, len(real_score), num)]
@@ -91,7 +90,6 @@ def train_ndcg_at_n(train_real_score, train_predict_score, n, num):
 
 
 def train_hr_at_n(train_real_score, train_predict_score, n, num):
-    # print('train_hr_at_n:')
     each_train_real_score = \
         [train_real_score[i: i + num] for i in range(0, len(train_real_score), num)]
     each_train_predict_score = \
@@ -99,19 +97,12 @@ def train_hr_at_n(train_real_score, train_predict_score, n, num):
 
     total_hit = 0
     total_num = len(each_train_predict_score)
-    # print('total num: ', total_num)
     for i in range(len(each_train_predict_score)):
-        # print('category: ', i)
         now_real_score = each_train_real_score[i]
         now_predict_score = each_train_predict_score[i]
 
         rel_val, real_rank = torch.sort(now_real_score, descending=True)
-        pre_val, pre_rank = torch.sort(now_predict_score, descending=True)
-
-        # print('real val: ', rel_val)
-        # print("real rank: ", real_rank)
-        # print('pre val: ', pre_val)
-        # print("pre rank: ", pre_rank)
+        _, pre_rank = torch.sort(now_predict_score, descending=True)
 
         one_set = []
         for j in range(len(rel_val)):
@@ -120,7 +111,6 @@ def train_hr_at_n(train_real_score, train_predict_score, n, num):
             one_set.append(real_rank[j])
 
         one_set = torch.tensor(one_set)
-        # print('one set:', one_set)
         for j in range(n):
             if pre_rank[j] in one_set:
                 total_hit += 1
