@@ -7,7 +7,7 @@ from time import time
 from V3.Information import Information
 from V3.DataLoader import DataLoader
 from V3.Net import Model
-from V3.metrics import ndcg_at_n, hr_at_n, train_hr_at_n, train_ndcg_at_n
+from V3.Metrics import ndcg_at_n, hr_at_n, train_hr_at_n, train_ndcg_at_n
 
 DEBUG = True
 CUDA_AVAILABLE = False
