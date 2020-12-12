@@ -4,7 +4,7 @@ import math
 import random
 import torch
 
-from V3.Information import Information
+from V1.Information import Information
 
 
 class DataLoader:
