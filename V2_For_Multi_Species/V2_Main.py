@@ -47,6 +47,7 @@ if __name__ == '__main__':
     # load data
     data = DataLoader(info)
     batch_size = info.batch_size
+    # print('data.train_category_index', len(data.train_category_index)) ####
     train_category_index = \
         [data.train_category_index[i: i + batch_size] for i in range(0, len(data.train_category_index), batch_size)]
     train_grid_index = \
@@ -74,6 +75,7 @@ if __name__ == '__main__':
         model.train()
         iter_total_loss = 0
         time_iter = time()
+        # print('train_category_index ',len(train_category_index)) ###
         for batch_iter in range(len(train_category_index)):
             time_iter = time()
 

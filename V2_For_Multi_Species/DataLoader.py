@@ -4,7 +4,7 @@ import math
 import random
 import torch
 
-from V1.Information import Information
+from V2_For_Multi_Species.Information import Information
 
 
 class DataLoader:
@@ -59,7 +59,7 @@ class DataLoader:
                 address_block_scope[square_id] = [x1 + i * x_degree, x1 + (i + 1) * x_degree,
                                                   y2 - (i + 1) * y_degree, y2 - i * y_degree]
 
-        my_data = pd.read_csv(url, low_memory=False)
+        my_data = pd.read_csv(url, low_memory=False, error_bad_lines=False)
         category_num = 0
         category_id = {}  # category->id
         id_category = {}  # id->category
@@ -95,6 +95,8 @@ class DataLoader:
             if longitude < x1 or longitude > x2 or latitude < y1 or latitude > y2:
                 continue
             else:
+                if math.isnan(longitude) or math.isnan(latitude):  # 判nan
+                    continue
                 now_category_id = category_id[row["small_category"]]
                 x_difference = longitude - x1
                 y_difference = y2 - latitude
@@ -119,7 +121,7 @@ class DataLoader:
             category_one_hot_matrix[i][i] = 1
 
         test_set = []
-        category_vis = []  # 0为地址交互个数过少舍弃，1为训练类别，2为测试类别（这里为火锅店）
+        category_vis = []  # 0为地址交互个数过少舍弃类别，1为训练类别，2为测试类别（这里为火锅店）
         huoguo_num = 0
         for i in range(category_num):
             one = []
@@ -135,9 +137,8 @@ class DataLoader:
                 category_vis.append(0)
                 test_set.append([-1])
             else:
-                # 每种不同类别的火锅店(四川火锅，海鲜火锅...)类型的每个火锅店都是测试集
-                if id_category[i].find(self.info.test_category) != -1:
-                    # print("huogu: ", id_category[i])
+                # 为测试的火锅店类别中的每个火锅店都是测试集
+                if id_category[i] in self.info.test_category:
                     category_vis.append(2)
                     now_category_test = []
                     for k in range(len(one)):
@@ -149,9 +150,6 @@ class DataLoader:
                 else:
                     category_vis.append(1)
                     test_set.append(-1)
-                    # tmp = random.sample(one, 1)
-                    # tmp.extend(random.sample(no_one, test_num))
-                    # test_set.append(tmp)
 
         print("After clear---category num: " + str(category_num) + " ; grid num: " + str(
             x_num * y_num) + " ; huoguo num:" + str(huoguo_num) + "---")
@@ -177,7 +175,7 @@ class DataLoader:
             if self.category_vis[i] == 0:  # invalid category (number of interactions less than the threshold)
                 continue
 
-            elif self.category_vis[i] == 1:
+            elif self.category_vis[i] == 1:  # 训练类别
                 for j in range(grid_num):
                     train_category_index.append(i)
                     train_grid_index.append(j)
@@ -215,6 +213,7 @@ class DataLoader:
 if __name__ == '__main__':
     my_info = Information()
     myDateLoader = DataLoader(my_info)
+    print('test len :', len(myDateLoader.test_category_index))
     category_feature, grid_feature, real_score = myDateLoader.get_feature(myDateLoader.test_category_index,
                                                                           myDateLoader.test_grid_index,
                                                                           myDateLoader.test_real_score_index)

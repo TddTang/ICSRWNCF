@@ -2,26 +2,24 @@ import torch
 import math
 
 
-def mutli_sort(a, b, c, n):
-    now_len = len(a)
+def mutli_sort(all_rank, n):
+    now_len = len(all_rank[0])
     rs = []
     id_score = {}
-    a = a.numpy()
-    b = b.numpy()
-    c = c.numpy()
-    for i in range(now_len):
-        id_score[a[i]] = 0
-        id_score[b[i]] = 0
-        id_score[c[i]] = 0
-    for i in range(now_len):  # 采取出现加分制，越在前面出现，分数越高
-        id_score[a[i]] += now_len - i
-        id_score[b[i]] += now_len - i
-        id_score[c[i]] += now_len - i
+    for i in range(len(all_rank)):
+        all_rank[i] = all_rank[i].numpy()
+    for n_r in all_rank:
+        for j in range(n):
+            id_score[n_r[j]] = 0
+    for n_r in all_rank:
+        for j in range(n):
+            id_score[n_r[j]] += now_len - j  # 采取出现加分制，越在前面出现，分数越高
     id_score = sorted(id_score.items(), key=lambda item: item[1], reverse=True)
     for i in range(n):  # 返回得分最高的n个
         rs.append(id_score[i][0])
 
     return rs
+
 
 # Num locations for each class. ndcg for the first n locations to be found.
 def ndcg_at_n(real_score, predict_score, n, num):
@@ -80,20 +78,19 @@ def ndcg_at_n_for_mutli(real_score, predict_score, n, num, species_num):
         [predict_score[i: i + num] for i in range(0, len(predict_score), num)]
 
     total_ndcg = 0
-    total_num = len(each_predict_score)/3
+    total_num = len(each_predict_score) / species_num
     for i in range(0, len(each_predict_score), species_num):
         now_real_score = each_real_score[i]
-        now_one_predict_score = each_predict_score[i]
-        now_two_predict_score = each_predict_score[i + 1]
-        now_three_predict_score = each_predict_score[i + 2]
-
         _, real_rank = torch.sort(now_real_score, descending=True)
-        _, pre_one_rank = torch.sort(now_one_predict_score, descending=True)
-        _, pre_two_rank = torch.sort(now_two_predict_score, descending=True)
-        _, pre_three_rank = torch.sort(now_three_predict_score, descending=True)
+        all_pre_rank = []
+        for j in range(species_num):
+            now_predict_score = each_predict_score[i + j]
+            _, pre_rank = torch.sort(now_predict_score, descending=True)
+            all_pre_rank.append(pre_rank)
+
         target = real_rank[0]
         now_ndcg = 0
-        rs = mutli_sort(pre_one_rank[:n], pre_two_rank[:n], pre_three_rank[:n], n)
+        rs = mutli_sort(all_pre_rank, n)
         for j in range(n):
             if target == rs[j]:
                 now_ndcg = 1 / math.log2(j + 2)
@@ -111,23 +108,22 @@ def hr_at_n_for_multi(real_score, predict_score, n, num, species_num):
         [predict_score[i: i + num] for i in range(0, len(predict_score), num)]
 
     hit_num = 0
-    total_num = len(each_predict_score)/3
+    total_num = len(each_predict_score) / species_num
     for i in range(0, len(each_predict_score), species_num):
         now_real_score = each_real_score[i]
-        now_one_predict_score = each_predict_score[i]
-        now_two_predict_score = each_predict_score[i + 1]
-        now_three_predict_score = each_predict_score[i + 2]
-
         _, real_rank = torch.sort(now_real_score, descending=True)
-        _, pre_one_rank = torch.sort(now_one_predict_score, descending=True)
-        _, pre_two_rank = torch.sort(now_two_predict_score, descending=True)
-        _, pre_three_rank = torch.sort(now_three_predict_score, descending=True)
+        all_pre_rank = []
+        for j in range(species_num):
+            now_predict_score = each_predict_score[i + j]
+            _, pre_rank = torch.sort(now_predict_score, descending=True)
+            all_pre_rank.append(pre_rank)
+
         target = real_rank[0]
-        rs = mutli_sort(pre_one_rank[:n], pre_two_rank[:n], pre_three_rank[:n], n)
+        rs = mutli_sort(all_pre_rank, n)
         if target in rs:
             hit_num += 1
 
-    return hit_num/total_num
+    return hit_num / total_num
 
     #
     # each_real_score = \
