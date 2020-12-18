@@ -38,8 +38,12 @@ def get_mode_out(now_model, category_feature, grid_feature):
 if __name__ == '__main__':
     system_init(981125)
     info = Information()
-    hr_list = []
-    ndcg_list = []
+    hr_list_0 = []
+    ndcg_list_0 = []
+    hr_list_1 = []
+    ndcg_list_1 = []
+    hr_list_2 = []
+    ndcg_list_2 = []
 
     print("-------Initialization complete-------")
 
@@ -113,16 +117,35 @@ if __name__ == '__main__':
                 loss = torch.nn.functional.binary_cross_entropy(test_NeuMF_out, test_real_score, reduction='sum')
 
                 # evaluate ndcg & hr
-                ndcg = ndcg_at_n_for_mutli(test_real_score, test_NeuMF_out, info.N, info.test_num + 1,
-                                           len(info.similar_categories))
-                hr = hr_at_n_for_multi(test_real_score, test_NeuMF_out, info.N, info.test_num + 1,
-                                       len(info.similar_categories))
-                hr_list.append(hr)
-                ndcg_list.append(ndcg)
+                ndcg_0 = ndcg_at_n_for_mutli(test_real_score, test_NeuMF_out, info.N[0], info.test_num + 1,
+                                             len(info.similar_categories))
+                hr_0 = hr_at_n_for_multi(test_real_score, test_NeuMF_out, info.N[0], info.test_num + 1,
+                                         len(info.similar_categories))
 
+                ndcg_1 = ndcg_at_n_for_mutli(test_real_score, test_NeuMF_out, info.N[1], info.test_num + 1,
+                                             len(info.similar_categories))
+                hr_1 = hr_at_n_for_multi(test_real_score, test_NeuMF_out, info.N[1], info.test_num + 1,
+                                         len(info.similar_categories))
+
+                ndcg_2 = ndcg_at_n_for_mutli(test_real_score, test_NeuMF_out, info.N[2], info.test_num + 1,
+                                             len(info.similar_categories))
+                hr_2 = hr_at_n_for_multi(test_real_score, test_NeuMF_out, info.N[2], info.test_num + 1,
+                                         len(info.similar_categories))
+
+                hr_list_0.append(hr_0)
+                ndcg_list_0.append(ndcg_0)
+
+                hr_list_1.append(hr_1)
+                ndcg_list_1.append(ndcg_1)
+
+                hr_list_2.append(hr_2)
+                ndcg_list_2.append(ndcg_2)
                 if DEBUG:
-                    print('Evaluate: Epoch: ', epoch, 'Time: ', time() - time_iter, 'HR: ', hr,
-                          'NDCG: ', ndcg)
+                    print('Evaluate: Epoch: ', epoch, 'Time: ', time() - time_iter)
+                    print('HR@', info.N[0], ' : ', hr_0, '; NDCG@', info.N[0], ' : ', ndcg_0)
+                    print('HR@', info.N[1], ' : ', hr_1, '; NDCG@', info.N[1], ' : ', ndcg_1)
+                    print('HR@', info.N[2], ' : ', hr_2, '; NDCG@', info.N[2], ' : ', ndcg_2)
+
 
                 # ------------train evaluate------------
                 # all_train_category_feature, all_train_grid_feature, all_train_real_score = \
@@ -138,36 +161,59 @@ if __name__ == '__main__':
 
     print("-------Model training complete--------")
 
-    hr_list = np.array(hr_list)
-    ndcg_list = np.array(ndcg_list)
+    hr_list_0 = np.array(hr_list_0)
+    ndcg_list_0 = np.array(ndcg_list_0)
+    hr_list_1 = np.array(hr_list_1)
+    ndcg_list_1 = np.array(ndcg_list_1)
+    hr_list_2 = np.array(hr_list_2)
+    ndcg_list_2 = np.array(ndcg_list_2)
 
-    plt.subplot(1, 2, 1)
+    plt.subplot(3, 2, 1)
     plt.xlabel("epoch")
-    plt.ylabel("HR@" + str(info.N))
-    plt.plot(range(len(hr_list)), hr_list)
-    plt.subplot(1, 2, 2)
+    plt.ylabel("HR@" + str(info.N[0]))
+    plt.plot(range(len(hr_list_0)), hr_list_0)
+    plt.subplot(3, 2, 2)
     plt.xlabel("epoch")
-    plt.ylabel("NDCG@" + str(info.N))
-    plt.plot(range(len(ndcg_list)), ndcg_list)
+    plt.ylabel("NDCG@" + str(info.N[0]))
+    plt.plot(range(len(ndcg_list_0)), ndcg_list_0)
+
+    plt.subplot(3, 2, 3)
+    plt.xlabel("epoch")
+    plt.ylabel("HR@" + str(info.N[1]))
+    plt.plot(range(len(hr_list_1)), hr_list_1)
+    plt.subplot(3, 2, 4)
+    plt.xlabel("epoch")
+    plt.ylabel("NDCG@" + str(info.N[1]))
+    plt.plot(range(len(ndcg_list_1)), ndcg_list_1)
+
+    plt.subplot(3, 2, 5)
+    plt.xlabel("epoch")
+    plt.ylabel("HR@" + str(info.N[2]))
+    plt.plot(range(len(hr_list_2)), hr_list_2)
+    plt.subplot(3, 2, 6)
+    plt.xlabel("epoch")
+    plt.ylabel("NDCG@" + str(info.N[2]))
+    plt.plot(range(len(ndcg_list_2)), ndcg_list_2)
+
     plt.tight_layout()
     plt.savefig('result.png')
     plt.show()
 
-    # testing
-    model.eval()
-    with torch.no_grad():
-        # evaluate loss
-        test_category_feature, test_grid_feature, test_real_score = \
-            data.get_feature(data.test_category_index, data.test_grid_index, data.test_real_score_index)
-
-        test_NeuMF_out = get_mode_out(model, test_category_feature, test_grid_feature)
-
-        loss = torch.nn.functional.binary_cross_entropy(test_NeuMF_out, test_real_score, reduction='sum')
-
-        # evaluate ndcg & hr
-        ndcg = ndcg_at_n_for_mutli(test_NeuMF_out, test_real_score, info.N, info.test_num + 1,
-                                   len(info.similar_categories))
-        hr = hr_at_n_for_multi(test_NeuMF_out, test_real_score, info.N, info.test_num + 1, len(info.similar_categories))
-
-        if DEBUG:
-            print('Final Evaluate: ', 'Mean Loss: ', loss.item() / len(test_grid_feature), 'HR: ', hr, 'NDCG: ', ndcg)
+    # # testing
+    # model.eval()
+    # with torch.no_grad():
+    #     # evaluate loss
+    #     test_category_feature, test_grid_feature, test_real_score = \
+    #         data.get_feature(data.test_category_index, data.test_grid_index, data.test_real_score_index)
+    #
+    #     test_NeuMF_out = get_mode_out(model, test_category_feature, test_grid_feature)
+    #
+    #     loss = torch.nn.functional.binary_cross_entropy(test_NeuMF_out, test_real_score, reduction='sum')
+    #
+    #     # evaluate ndcg & hr
+    #     ndcg = ndcg_at_n_for_mutli(test_NeuMF_out, test_real_score, info.N, info.test_num + 1,
+    #                                len(info.similar_categories))
+    #     hr = hr_at_n_for_multi(test_NeuMF_out, test_real_score, info.N, info.test_num + 1, len(info.similar_categories))
+    #
+    #     if DEBUG:
+    #         print('Final Evaluate: ', 'Mean Loss: ', loss.item() / len(test_grid_feature), 'HR: ', hr, 'NDCG: ', ndcg)

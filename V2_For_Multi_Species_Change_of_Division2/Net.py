@@ -18,18 +18,21 @@ class Model_two(nn.Module):
     def __init__(self, n_input, n_output):
         super(Model_two, self).__init__()
         self.hidden1 = nn.Linear(n_input, 128)
-        self.dropout1 = nn.Dropout(p=0.3)
         self.hidden2 = nn.Linear(128, 64)
-        self.dropout2 = nn.Dropout(p=0.3)
         self.predict = nn.Linear(64, n_output)
-        self.dropout3 = nn.Dropout(p=0.3)
+        self.dropout = nn.Dropout(p=0.4)
 
     def forward(self, x):
         out = self.hidden1(x)
+        out = self.dropout(out)
         out = F.relu(out)
+
         out = self.hidden2(out)
+        out = self.dropout(out)
         out = F.relu(out)
+
         predict = self.predict(out)
+        predict = self.dropout(predict)
         predict = torch.sigmoid(predict)
         return predict
 

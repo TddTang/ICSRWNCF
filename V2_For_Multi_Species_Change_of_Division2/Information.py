@@ -21,11 +21,12 @@ class Information:
         self.n_epoch = 50
         self.print_every = 1000
         self.evaluate_every = 1
-        self.test_category = '西西弗书店'
-        self.similar_categories = ['书店音像', '咖啡厅']
+        # self.test_category = '西西弗书店'
+        # self.similar_categories = ['书店音像', '咖啡厅']
+        self.test_category = '盒马鲜生'
+        self.similar_categories = ['生鲜', '超市/便利店']
 
-        self.N = 10  # The former N's ndcg and hr
-
+        self.N = [6, 10, 15]  # The former N's ndcg and hr
 
         # self.x1 = 118.595752  # upper left corner(x1, y2) lower right corner(x2, y1)
         # self.x2 = 118.911609

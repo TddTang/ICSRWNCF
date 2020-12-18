@@ -89,9 +89,9 @@ class DataLoader:
 
         print("---category num: " + str(category_num) + " ; grid num: " + str(x_num * y_num) + "---")
         num = 0
-        category_num += 1  # 西西弗书店单独拿出来作为类别 所以category_num+1
-        category_id['西西弗书店'] = category_num - 1
-        id_category[category_num - 1] = '西西弗书店'
+        category_num += 1  # 测试店铺单独拿出来作为类别 所以category_num+1
+        category_id[self.info.test_category] = category_num - 1
+        id_category[category_num - 1] = self.info.test_category
         interaction_matrix = np.full((category_num, x_num * y_num), 0, dtype=int)  # 下标都从0开始
 
         for index, row in my_data.iterrows():
@@ -113,7 +113,7 @@ class DataLoader:
                 now_xid = math.floor(x_difference / x_degree)
                 now_yid = math.floor(y_difference / y_degree)
                 square_id = now_yid * x_num + now_xid
-                # 西西弗书店作为训练集合 单独作为最后一个类别
+                # 测试店铺作为训练集合 单独作为最后一个类别
                 if str(row["name"]).find(self.info.test_category) != -1:
                     interaction_matrix[category_num - 1][square_id] = 1
                 else:
@@ -145,7 +145,7 @@ class DataLoader:
                     one.append(j)
                 else:
                     no_one.append(j)
-            if i == (category_num - 1):  # 为抽离出来的西西弗书店类别 全部作为测试集
+            if i == (category_num - 1):  # 为抽离出来的测试店铺 全部作为测试集
                 category_vis.append(2)
                 now_category_test = []
                 for k in range(len(one)):
