@@ -24,7 +24,7 @@ class Information:
         self.test_category = ['火锅', '四川火锅', '重庆火锅']
         self.similar_categories = ['川菜家常菜', '串串香']
 
-        self.N = 10  # The former N's ndcg and hr
+        self.N = 15  # The former N's ndcg and hr
 
 
         # self.x1 = 118.595752  # upper left corner(x1, y2) lower right corner(x2, y1)

@@ -31,7 +31,7 @@ class DataLoader:
         First time: counting and numbering store types
         Second time: construct a matrix of store types and address blocks that can be used to calculate the address block
         from the store's latitude and longitude and the address block number.
-        
+
         Get the one-hot matrix of locations and the one-hot matrix of categories.
         Get a random test set
     '''
