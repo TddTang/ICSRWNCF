@@ -17,8 +17,8 @@ class Information:
         self.interactive_threshold = 20  # interaction number threshold
         self.batch_size = 32
         self.K = 20
-        self.lr = 0.005
-        self.n_epoch = 50
+        self.lr = 0.001
+        self.n_epoch = 150
         self.print_every = 1000
         self.evaluate_every = 1
         # self.test_category = '西西弗书店'

@@ -23,8 +23,9 @@ def system_init(seed):
     # CUDA
     global CUDA_AVAILABLE, DEVICE, N_GPU
     CUDA_AVAILABLE = torch.cuda.is_available()
-    DEVICE = torch.device("cuda" if CUDA_AVAILABLE else "cpu")
+    print('CUDA_AVAILABLE :', CUDA_AVAILABLE)
     N_GPU = torch.cuda.device_count()
+    DEVICE = torch.device("cuda:{}".format(1) if CUDA_AVAILABLE else "cpu")
     if N_GPU > 0:
         torch.cuda.manual_seed_all(seed)
 
@@ -145,7 +146,6 @@ if __name__ == '__main__':
                     print('HR@', info.N[0], ' : ', hr_0, '; NDCG@', info.N[0], ' : ', ndcg_0)
                     print('HR@', info.N[1], ' : ', hr_1, '; NDCG@', info.N[1], ' : ', ndcg_1)
                     print('HR@', info.N[2], ' : ', hr_2, '; NDCG@', info.N[2], ' : ', ndcg_2)
-
 
                 # ------------train evaluate------------
                 # all_train_category_feature, all_train_grid_feature, all_train_real_score = \

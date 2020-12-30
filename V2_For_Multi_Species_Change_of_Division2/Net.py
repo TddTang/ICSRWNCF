@@ -20,7 +20,8 @@ class Model_two(nn.Module):
         self.hidden1 = nn.Linear(n_input, 128)
         self.hidden2 = nn.Linear(128, 64)
         self.predict = nn.Linear(64, n_output)
-        self.dropout = nn.Dropout(p=0.4)
+        self.dropout = nn.Dropout(p=0.5)
+        self.dropout2 = nn.Dropout(p=0.9)
 
     def forward(self, x):
         out = self.hidden1(x)
@@ -32,7 +33,7 @@ class Model_two(nn.Module):
         out = F.relu(out)
 
         predict = self.predict(out)
-        predict = self.dropout(predict)
+        predict = self.dropout2(predict)
         predict = torch.sigmoid(predict)
         return predict
 

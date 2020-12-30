@@ -7,7 +7,7 @@ def mutli_sort(all_rank, n):
     rs = []
     id_score = {}
     for i in range(len(all_rank)):
-        all_rank[i] = all_rank[i].numpy()
+        all_rank[i] = all_rank[i].cpu().numpy()
     for n_r in all_rank:
         for j in range(n):
             id_score[n_r[j]] = 0
